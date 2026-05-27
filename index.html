@@ -1,11 +1,3 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KOCES_관리자 일정관리표</title>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;width:100%;overflow-x:hidden}
@@ -15,26 +7,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
 .conn-badge{text-align:center;font-size:12px;margin-bottom:6px}
 .btn{padding:6px 14px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;color:#374151;transition:all .15s;font-family:inherit;font-weight:500}
 .btn:hover{background:#f8fafc;border-color:#cbd5e1}
-.btn:active{transform:scale(.98)}
 .btn.active{background:#3b82f6;color:#fff;border-color:#3b82f6}
 .btn.prim{background:#3b82f6;color:#fff;border-color:#3b82f6;box-shadow:0 1px 4px rgba(59,130,246,.3)}
-.btn.prim:hover{background:#2563eb;border-color:#2563eb}
+.btn.prim:hover{background:#2563eb}
 .btn.danger{background:#fff;color:#ef4444;border-color:#fca5a5}
-.btn.danger:hover{background:#fff5f5;border-color:#ef4444}
+.btn.danger:hover{background:#fff5f5}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;flex-shrink:0}
+select.usel{padding:5px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;background:#fff;color:#374151;cursor:pointer;font-family:inherit;font-weight:500}
 .main{padding:14px 18px;max-width:1100px;margin:0 auto}
 .panel{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px 18px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
 .panel-ttl{font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.6px}
 .user-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;min-height:28px}
 .utag{display:flex;align-items:center;gap:5px;padding:4px 10px 4px 8px;border-radius:20px;font-size:12px;font-weight:600;color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.15)}
-.utag .x{background:rgba(255,255,255,.3);border:none;color:#fff;width:16px;height:16px;border-radius:50%;cursor:pointer;font-size:9px;display:flex;align-items:center;justify-content:center;padding:0;transition:.1s}
+.utag .x{background:rgba(255,255,255,.3);border:none;color:#fff;width:16px;height:16px;border-radius:50%;cursor:pointer;font-size:9px;display:flex;align-items:center;justify-content:center;padding:0}
 .utag .x:hover{background:rgba(255,255,255,.55)}
 .add-row{display:flex;gap:8px}
-.add-row input{flex:1;padding:7px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;background:#f8fafc;color:#1a202c;font-family:inherit;transition:.15s}
-.add-row input:focus{outline:none;border-color:#3b82f6;background:#fff;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
-.ftag{padding:4px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:2px solid transparent;font-weight:600;color:#fff;opacity:.5;transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,.1)}
-.ftag.on{opacity:1;border-color:rgba(0,0,0,.15);box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.add-row input{flex:1;padding:7px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;background:#f8fafc;color:#1a202c;font-family:inherit}
+.add-row input:focus{outline:none;border-color:#3b82f6;background:#fff}
+.filter-bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.flbl{font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.ftag{padding:4px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:2px solid transparent;font-weight:600;color:#fff;opacity:.5;transition:all .15s}
+.ftag.on{opacity:1;border-color:rgba(0,0,0,.15)}
 .cal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
 .cal-title{font-size:18px;font-weight:700;color:#1a202c;letter-spacing:-.3px}
 .bgroup{display:flex;gap:6px;align-items:center}
@@ -42,7 +36,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
 .dow-row{display:grid;grid-template-columns:repeat(7,1fr);background:#f8fafc;border-bottom:1px solid #e2e8f0}
 .dow{text-align:center;padding:10px 4px;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px}
 .days-grid{display:grid;grid-template-columns:repeat(7,1fr)}
-.dc{height:96px;overflow:hidden;border-right:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;padding:6px 5px;cursor:pointer;transition:background .12s}
+.dc{min-height:96px;border-right:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9;padding:6px 5px;cursor:pointer;transition:background .12s}
 .dc:nth-child(7n){border-right:none}
 .dc:hover{background:#f8fafc}
 .dc.om{background:#fafafa}
@@ -51,10 +45,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
 .dc.today{background:#eff6ff}
 .dc.today .dnum{background:#3b82f6;color:#fff}
 .dc.today:hover{background:#dbeafe}
-.chip{font-size:10px;padding:2px 6px;border-radius:4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;color:#fff;font-weight:600;line-height:1.5;box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.chip{font-size:10px;padding:2px 6px;border-radius:4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;color:#fff;font-weight:600;line-height:1.5}
 .more{font-size:11px;color:#3b82f6;padding:1px 4px;font-weight:600;cursor:pointer}
 .more:hover{text-decoration:underline}
-.week-wrap{background:#fff;border:1px solid #e2e8f0;border-radius:14px;overflow:auto;max-height:65vh;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.week-wrap{background:#fff;border:1px solid #e2e8f0;border-radius:14px;overflow:auto;max-height:65vh}
 .wk-hdr{display:grid;grid-template-columns:52px repeat(7,1fr);border-bottom:1px solid #e2e8f0;position:sticky;top:0;background:#f8fafc;z-index:10}
 .wdhdr{padding:10px 4px;text-align:center;font-size:11px;border-left:1px solid #f1f5f9}
 .wdhdr .dow2{font-weight:700;color:#94a3b8;font-size:10px;text-transform:uppercase;letter-spacing:.5px}
@@ -66,48 +60,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
 .wdc{border-left:1px solid #f1f5f9;position:relative}
 .whs{height:44px;border-bottom:1px solid #f8fafc;cursor:pointer}
 .whs:hover{background:#f8fafc}
-.wev{position:absolute;left:2px;right:2px;border-radius:5px;padding:3px 5px;font-size:10px;color:#fff;overflow:hidden;cursor:pointer;z-index:5;min-height:20px;line-height:1.4;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.wev{position:absolute;left:2px;right:2px;border-radius:5px;padding:3px 5px;font-size:10px;color:#fff;overflow:hidden;cursor:pointer;z-index:5;min-height:20px;line-height:1.4}
 .overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,23,42,.5);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
 .modal{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:26px;width:460px;max-width:94vw;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.15)}
 .modal h3{font-size:17px;font-weight:700;margin-bottom:20px;color:#1a202c}
 .fg{margin-bottom:15px}
 .fg label{display:block;font-size:11px;font-weight:700;color:#64748b;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
-.fg input,.fg textarea,.fg select{width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;background:#f8fafc;color:#1a202c;font-family:inherit;line-height:1.5;transition:.15s}
-.fg input:focus,.fg textarea:focus,.fg select:focus{outline:none;border-color:#3b82f6;background:#fff;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.fg input,.fg textarea,.fg select{width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;background:#f8fafc;color:#1a202c;font-family:inherit;line-height:1.5}
+.fg input:focus,.fg textarea:focus,.fg select:focus{outline:none;border-color:#3b82f6;background:#fff}
 .fg textarea{resize:vertical;min-height:80px}
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .tsel{flex:1;padding:9px 6px !important;width:auto !important}
 .mact{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid #f1f5f9}
-@media(max-width:600px){
-  .top-title{font-size:15px;padding:14px 0 2px}
-  .main{padding:8px 10px}
-  .panel{padding:12px;border-radius:10px}
-  .cal-hdr{gap:6px}
-  .cal-title{font-size:15px;font-weight:700}
-  .btn{padding:5px 10px;font-size:12px}
-  .bgroup{gap:4px}
-  .dow{padding:8px 2px;font-size:11px}
-  .dc{height:80px;padding:4px 3px}
-  .dnum{font-size:12px;width:22px;height:22px;margin-bottom:3px}
-  .chip{font-size:10px;padding:2px 4px}
-  .more{font-size:10px}
-  .wdhdr .dnum2{font-size:16px}
-  .wdhdr{padding:8px 2px}
-  .tlbl{font-size:9px;padding:2px 4px 0 0}
-  .modal{padding:18px;width:100%;border-radius:12px}
-  .frow{grid-template-columns:1fr}
-  .ftag{font-size:12px;padding:4px 10px}
-  .utag{font-size:12px}
-  .month-wrap{border-radius:10px}
-  .days-grid{grid-template-columns:repeat(7,minmax(0,1fr))}
-}
 </style>
-</head>
-<body>
 
 <div class="top-title">KOCES_관리자 일정관리표</div>
 <div class="top-sub" id="today-label"></div>
-<div class="conn-badge" id="conn-badge"></div>
+<div class="conn-badge"><span style="color:#22c55e;font-weight:600">● 실시간 연결됨</span></div>
 
 <div class="main">
   <div class="panel">
@@ -123,15 +92,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
       </div>
     </div>
   </div>
-
   <div style="margin-bottom:12px">
     <div onclick="toggleFilter2()" style="cursor:pointer;display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">
       <span>필터</span>
       <span id="filter-arrow" style="font-size:12px;transition:.2s">▼</span>
     </div>
-    <div id="filter-bar" style="display:none;flex-wrap:wrap;gap:6px"></div>
+    <div id="filter-bar"></div>
   </div>
-
   <div class="cal-hdr">
     <div class="bgroup">
       <button class="btn" onclick="prev()" style="font-size:15px;padding:5px 14px">&#8249; 이전</button>
@@ -150,45 +117,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
 <div id="modal-root"></div>
 
 <script>
-// ========================================
-// 🔥 Firebase 설정값
-// ========================================
-const firebaseConfig = {
-  apiKey: "AIzaSyAlY-_cjSKXPypp8PEa6h-3OnV5-QyqFKY",
-  authDomain: "koces-edaa4.firebaseapp.com",
-  databaseURL: "https://koces-edaa4-default-rtdb.firebaseio.com",
-  projectId: "koces-edaa4",
-  storageBucket: "koces-edaa4.firebasestorage.app",
-  messagingSenderId: "655090030132",
-  appId: "1:655090030132:web:eca03d39648fed35571c61"
-};
-// ========================================
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const dataRef = db.ref('koces-cal');
-
 const COLORS=['#4A90E2','#E74C3C','#2ECC71','#F39C12','#9B59B6','#1ABC9C','#E67E22','#34495E','#E91E63','#00BCD4'];
 let S={users:[],events:[],curUser:null,view:'month',date:new Date(),filters:null,modal:null};
 let _mdOnOverlay=false;
-let _initialized=false;
 
-dataRef.on('value',function(snapshot){
-  const data=snapshot.val();
-  if(data){S.users=data.users||[];S.events=data.events||[];if(!_initialized&&S.users.length){S.curUser=S.users[0].id;_initialized=true;}}
-  render();
-});
-
-db.ref('.info/connected').on('value',function(snap){
-  const el=document.getElementById('conn-badge');
-  el.innerHTML=snap.val()?'<span style="color:#22c55e;font-weight:600">● 실시간 연결됨</span>':'<span style="color:#f87171;font-weight:600">● 연결 끊김</span>';
-});
-
-function save(){dataRef.set({users:S.users,events:S.events});}
-
-function init(){
+async function load(){
+  try{const r=await window.storage.get('tc2');if(r&&r.value){const d=JSON.parse(r.value);S.users=d.users||[];S.events=d.events||[];if(S.users.length)S.curUser=S.users[0].id;}}catch(e){}
   const td=new Date();const dns=['일','월','화','수','목','금','토'];
   document.getElementById('today-label').textContent='오늘 '+td.getFullYear()+'년 '+(td.getMonth()+1)+'월 '+td.getDate()+'일 ('+dns[td.getDay()]+')';
+  render();
+}
+async function save(){try{await window.storage.set('tc2',JSON.stringify({users:S.users,events:S.events}));}catch(e){}}
+
+function toggleFilter2(){
+  const bar=document.getElementById('filter-bar');
+  const arrow=document.getElementById('filter-arrow');
+  const isHidden=bar.style.display==='none';
+  bar.style.display=isHidden?'flex':'none';
+  arrow.textContent=isHidden?'▲':'▼';
 }
 
 function togglePanel(){
@@ -196,14 +142,6 @@ function togglePanel(){
   const arrow=document.getElementById('panel-arrow');
   const isHidden=body.style.display==='none';
   body.style.display=isHidden?'block':'none';
-  arrow.textContent=isHidden?'▲':'▼';
-}
-
-function toggleFilter2(){
-  const bar=document.getElementById('filter-bar');
-  const arrow=document.getElementById('filter-arrow');
-  const isHidden=bar.style.display==='none';
-  bar.style.display=isHidden?'flex':'none';
   arrow.textContent=isHidden?'▲':'▼';
 }
 
@@ -236,6 +174,14 @@ function render(){
   document.getElementById('btn-week').classList.toggle('active',S.view==='week');
   if(S.users.length&&!S.curUser)S.curUser=S.users[0].id;
   document.getElementById('btn-add').disabled=!S.users.length;
+}
+
+function renderHeader(){
+  const el=document.getElementById('hdr-user');
+  if(!S.users.length){el.innerHTML='<span style="font-size:12px;color:#94a3b8">팀원을 추가하세요</span>';return;}
+  const cur=getUser(S.curUser)||S.users[0];
+  let opts='';S.users.forEach(u=>{opts+='<option value="'+u.id+'"'+(u.id===S.curUser?' selected':'')+'>'+u.name+'</option>';});
+  el.innerHTML='<div class="avatar" style="background:'+cur.color+'">'+cur.name[0]+'</div><select class="usel" onchange="S.curUser=this.value;render()">'+opts+'</select>';
 }
 
 function renderUserList(){
@@ -316,12 +262,12 @@ function renderModal(){
     const dot='<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+(u?u.color:'#999')+';margin-right:6px"></span>';
     const timeStr=ev.startTime?(ev.startTime+(ev.endTime?' ~ '+ev.endTime:'')):'시간 없음';
     body='<div style="margin-bottom:20px">'+
-      '<div style="font-size:20px;font-weight:700;color:#1a202c;margin-bottom:14px;line-height:1.3">'+ev.title+'</div>'+
+      '<div style="font-size:20px;font-weight:700;color:#1a202c;margin-bottom:14px">'+ev.title+'</div>'+
       '<div style="display:flex;flex-direction:column;gap:10px;font-size:14px;color:#374151">'+
         '<div style="display:flex;align-items:center;gap:6px">'+dot+(u?u.name:'알 수 없음')+'</div>'+
-        '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">📅</span>'+ev.date+'</div>'+
-        '<div style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">🕐</span>'+timeStr+'</div>'+
-        (ev.memo?'<div style="margin-top:2px;padding:12px 14px;background:#f8fafc;border-radius:10px;color:#475569;line-height:1.7;font-size:13px;border:1px solid #f1f5f9">'+ev.memo+'</div>':'')+
+        '<div style="display:flex;align-items:center;gap:8px"><span>📅</span>'+ev.date+'</div>'+
+        '<div style="display:flex;align-items:center;gap:8px"><span>🕐</span>'+timeStr+'</div>'+
+        (ev.memo?'<div style="padding:12px 14px;background:#f8fafc;border-radius:10px;color:#475569;line-height:1.7;font-size:13px">'+ev.memo+'</div>':'')+
       '</div></div>'+
       '<div class="mact"><button class="btn" onclick="closeModal()">닫기</button><button class="btn prim" onclick="switchToEdit()">✏️ 편집</button></div>';
   } else {
@@ -369,10 +315,10 @@ function doSave(id){
   const obj={userId:uid2,title:title,date:date,startTime:startTime,endTime:endTime,memo:memo};
   if(id&&id!=='null'){const i=S.events.findIndex(x=>x.id===id);if(i>=0)S.events[i]=Object.assign({},obj,{id:id});}
   else{S.events.push(Object.assign({},obj,{id:genId()}));}
-  S.modal=null;save();
+  S.modal=null;save();render();
 }
 
-function delEvent(id){if(!confirm('이 일정을 삭제할까요?'))return;S.events=S.events.filter(ev=>ev.id!==id);S.modal=null;save();}
+function delEvent(id){if(!confirm('이 일정을 삭제할까요?'))return;S.events=S.events.filter(ev=>ev.id!==id);S.modal=null;save();render();}
 function closeModal(){S.modal=null;render();}
 
 function openDayAll(ds){
@@ -380,7 +326,7 @@ function openDayAll(ds){
   let items='';
   evts.forEach(ev=>{
     const u=getUser(ev.userId);const timeStr=ev.startTime?(ev.startTime+(ev.endTime?' ~ '+ev.endTime:'')):'';
-    items+='<div onclick="closeDayAll();openEdit(\''+ev.id+'\')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;border:1px solid #f1f5f9;margin-bottom:8px;transition:.15s;background:#fff" onmouseover="this.style.background=\'#f8fafc\'" onmouseout="this.style.background=\'#fff\'">'+
+    items+='<div onclick="closeDayAll();openEdit(\''+ev.id+'\')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;border:1px solid #f1f5f9;margin-bottom:8px;background:#fff" onmouseover="this.style.background=\'#f8fafc\'" onmouseout="this.style.background=\'#fff\'">'+
       '<div style="width:10px;height:10px;border-radius:50%;background:'+(u?u.color:'#999')+';flex-shrink:0"></div>'+
       '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:#1a202c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+ev.title+'</div>'+
       '<div style="font-size:11px;color:#94a3b8;margin-top:2px">'+(u?u.name:'')+(timeStr?' · '+timeStr:'')+'</div></div>'+
@@ -389,7 +335,7 @@ function openDayAll(ds){
   const wrap=document.createElement('div');wrap.id='day-all-root';
   wrap.innerHTML='<div class="overlay" onmousedown="dayAllMD(event)" onmouseup="dayAllMU(event)"><div class="modal" onclick="event.stopPropagation()" style="max-width:360px">'+
     '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">'+
-    '<div style="font-size:16px;font-weight:700;color:#1a202c">'+ds.replace(/-/g,'.')+'</div>'+
+    '<div style="font-size:16px;font-weight:700">'+ds.replace(/-/g,'.')+'</div>'+
     '<button class="btn" onclick="closeDayAll()" style="padding:3px 10px">✕</button></div>'+
     items+
     '<div class="mact" style="margin-top:8px"><button class="btn prim" onclick="closeDayAll();openNewDate(\''+ds+'\')">+ 일정 추가</button></div>'+
@@ -409,7 +355,7 @@ function addUser(){
   const id=genId(),color=COLORS[S.users.length%COLORS.length];
   S.users.push({id:id,name:n,color:color});
   if(!S.curUser)S.curUser=id;
-  inp.value='';save();
+  inp.value='';save();render();
 }
 
 function delUser(id){
@@ -418,7 +364,7 @@ function delUser(id){
   S.users=S.users.filter(x=>x.id!==id);S.events=S.events.filter(x=>x.userId!==id);
   if(S.curUser===id)S.curUser=S.users.length?S.users[0].id:null;
   if(S.filters){S.filters=S.filters.filter(x=>x!==id);if(!S.filters.length)S.filters=null;}
-  save();
+  save();render();
 }
 
 function toggleFilter(id){
@@ -444,13 +390,11 @@ function showToast(msg){
   setTimeout(()=>t.style.opacity='1',10);
   setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300)},2800);
 }
-function openNew(){if(!S.users.length)return;if(!S.curUser)S.curUser=S.users[0].id;S.modal={userId:S.curUser,date:fmt(S.date)};render();}
-function openNewDate(ds){if(!S.users.length)return;if(!S.curUser)S.curUser=S.users[0].id;S.modal={userId:S.curUser,date:ds};render();}
-function openNewDT(ds,t){if(!S.users.length)return;if(!S.curUser)S.curUser=S.users[0].id;S.modal={userId:S.curUser,date:ds,startTime:t};render();}
+function openNew(){if(!S.curUser)return;S.modal={userId:S.curUser,date:fmt(S.date)};render();}
+function openNewDate(ds){if(!S.curUser)return;S.modal={userId:S.curUser,date:ds};render();}
+function openNewDT(ds,t){if(!S.curUser)return;S.modal={userId:S.curUser,date:ds,startTime:t};render();}
 function openEdit(id){const ev=S.events.find(x=>x.id===id);if(!ev)return;S.modal=Object.assign({},ev,{_mode:'view'});render();}
 
 document.getElementById('new-name').addEventListener('keydown',function(e){if(e.key==='Enter')addUser();});
-init();
+load();
 </script>
-</body>
-</html>
