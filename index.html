@@ -8,7 +8,8 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#f0f4f8;color:#1a202c;font-size:14px}
+html,body{height:100%;width:100%;overflow-x:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Apple SD Gothic Neo',sans-serif;background:#f0f4f8;color:#1a202c;font-size:14px;min-height:100vh}
 .top-title{text-align:center;padding:22px 0 2px;font-size:20px;font-weight:700;letter-spacing:-.3px;color:#1a202c}
 .top-sub{text-align:center;font-size:12px;color:#94a3b8;margin-bottom:2px}
 .conn-badge{text-align:center;font-size:12px;margin-bottom:6px}
@@ -78,29 +79,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
 .tsel{flex:1;padding:9px 6px !important;width:auto !important}
 .mact{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid #f1f5f9}
 @media(max-width:600px){
-  .top-title{font-size:16px;padding:14px 0 2px}
-  .main{padding:8px 6px}
+  .top-title{font-size:15px;padding:14px 0 2px}
+  .main{padding:8px 10px}
   .panel{padding:12px;border-radius:10px}
-  .cal-hdr{flex-direction:column;align-items:stretch;gap:6px}
-  .cal-hdr .bgroup:first-child{display:flex;justify-content:space-between;align-items:center}
-  .cal-title{font-size:16px;font-weight:700;text-align:right}
-  .cal-hdr .bgroup:last-child{display:flex;justify-content:space-between;gap:4px}
-  .cal-hdr .bgroup:last-child .btn{flex:1;text-align:center;padding:8px 4px;font-size:13px}
-  .btn{padding:6px 10px;font-size:13px}
+  .cal-hdr{gap:6px}
+  .cal-title{font-size:15px;font-weight:700}
+  .btn{padding:5px 10px;font-size:12px}
   .bgroup{gap:4px}
   .dow{padding:8px 2px;font-size:11px}
   .dc{height:80px;padding:4px 3px}
   .dnum{font-size:12px;width:22px;height:22px;margin-bottom:3px}
   .chip{font-size:10px;padding:2px 4px}
   .more{font-size:10px}
-  .month-wrap{border-radius:10px}
-  .wdhdr .dnum2{font-size:15px}
-  .wdhdr{padding:6px 2px}
+  .wdhdr .dnum2{font-size:16px}
+  .wdhdr{padding:8px 2px}
   .tlbl{font-size:9px;padding:2px 4px 0 0}
-  .modal{padding:16px;width:100%;border-radius:12px}
+  .modal{padding:18px;width:100%;border-radius:12px}
   .frow{grid-template-columns:1fr}
   .ftag{font-size:12px;padding:4px 10px}
   .utag{font-size:12px}
+  .month-wrap{border-radius:10px}
+  .days-grid{grid-template-columns:repeat(7,minmax(0,1fr))}
 }
 </style>
 </head>
@@ -114,9 +113,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
   <div class="panel">
     <div class="panel-ttl" onclick="togglePanel()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:0">
       <span>팀원 관리</span>
-      <span id="panel-arrow" style="font-size:12px;color:#94a3b8;transition:.2s">▲</span>
+      <span id="panel-arrow" style="font-size:12px;color:#94a3b8;transition:.2s">▼</span>
     </div>
-    <div id="panel-body" style="margin-top:12px">
+    <div id="panel-body" style="margin-top:12px;display:none">
       <div class="user-list" id="user-list"></div>
       <div class="add-row">
         <input type="text" id="new-name" placeholder="팀원 이름을 입력하세요" maxlength="20">
@@ -128,9 +127,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Malgun Gothic','Ap
   <div style="margin-bottom:12px">
     <div onclick="toggleFilter2()" style="cursor:pointer;display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">
       <span>필터</span>
-      <span id="filter-arrow" style="font-size:12px;transition:.2s">▲</span>
+      <span id="filter-arrow" style="font-size:12px;transition:.2s">▼</span>
     </div>
-    <div id="filter-bar" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+    <div id="filter-bar" style="display:none;flex-wrap:wrap;gap:6px"></div>
   </div>
 
   <div class="cal-hdr">
