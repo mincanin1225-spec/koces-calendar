@@ -78,6 +78,9 @@ body.dark .dark-toggle{border-color:#334155}
 .dc.today .dnum{background:#3b82f6;color:#fff}
 .dc.today:hover{background:#dbeafe}
 .chip{font-size:10px;padding:2px 6px;border-radius:4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;color:#fff;font-weight:600;line-height:1.5}
+.holiday-label{font-size:9px;color:#ef4444;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dc.holiday .dnum{color:#ef4444}
+.dc.today.holiday .dnum{background:#ef4444;color:#fff}
 .more{font-size:11px;color:#3b82f6;padding:1px 4px;font-weight:600;cursor:pointer}
 .more:hover{text-decoration:underline}
 .week-wrap{background:#fff;border:1px solid #e2e8f0;border-radius:14px;overflow:auto;max-height:65vh}
@@ -208,6 +211,20 @@ db.ref('.info/connected').on('value',function(snap){
 
 function save(){dataRef.set({users:S.users,events:S.events});}
 
+// 공휴일
+const FIXED_HOLIDAYS={'01-01':'신정','03-01':'삼일절','05-05':'어린이날','06-06':'현충일','08-15':'광복절','10-03':'개천절','10-09':'한글날','12-25':'성탄절'};
+const VAR_HOLIDAYS={
+  '2024-02-09':'설날연휴','2024-02-10':'설날','2024-02-11':'설날연휴','2024-05-15':'부처님오신날','2024-09-16':'추석연휴','2024-09-17':'추석','2024-09-18':'추석연휴',
+  '2025-01-28':'설날연휴','2025-01-29':'설날','2025-01-30':'설날연휴','2025-05-05':'어린이날/부처님오신날','2025-10-05':'추석연휴','2025-10-06':'추석','2025-10-07':'추석연휴',
+  '2026-02-16':'설날연휴','2026-02-17':'설날','2026-02-18':'설날연휴','2026-05-24':'부처님오신날','2026-09-23':'추석연휴','2026-09-24':'추석','2026-09-25':'추석연휴',
+  '2027-02-06':'설날연휴','2027-02-07':'설날','2027-02-08':'설날연휴','2027-05-13':'부처님오신날','2027-09-14':'추석연휴','2027-09-15':'추석','2027-09-16':'추석연휴',
+  '2028-01-26':'설날연휴','2028-01-27':'설날','2028-01-28':'설날연휴','2028-05-02':'부처님오신날','2028-10-02':'추석연휴','2028-10-03':'추석','2028-10-04':'추석연휴'
+};
+function getHoliday(d){
+  const full=fmt(d),mdd=n2(d.getMonth()+1)+'-'+n2(d.getDate());
+  return VAR_HOLIDAYS[full]||FIXED_HOLIDAYS[mdd]||null;
+}
+
 function toggleDark(){
   document.body.classList.toggle('dark');
   document.getElementById('dark-btn').textContent=document.body.classList.contains('dark')?'☀️':'🌙';
@@ -291,10 +308,12 @@ function buildMonth(){
   h+='</div><div class="days-grid">';
   days.forEach(function(item){
     const dt=item.d,om=item.om,isT=sameDay(dt,today),ds=fmt(dt),evts=dayEvts(dt);
-    h+='<div class="dc'+(om?' om':'')+(isT?' today':'')+'" onclick="openNewDate(\''+ds+'\')">';
-    h+='<div class="dnum" style="'+(dt.getDay()===0&&!isT?'color:#f87171':dt.getDay()===6&&!isT?'color:#60a5fa':'')+'">'+ dt.getDate()+'</div>';
-    evts.slice(0,3).forEach(ev=>{h+='<div class="chip" style="background:'+getColor(ev.userId)+'" onclick="event.stopPropagation();openEdit(\''+ev.id+'\')" title="'+ev.title+'">'+(ev.startTime?ev.startTime+' ':'')+ev.title+'</div>';});
-    if(evts.length>3)h+='<div class="more" onclick="event.stopPropagation();openDayAll(\''+ds+'\')">+'+(evts.length-3)+'개 더보기</div>';
+    const hol=getHoliday(dt);
+    h+='<div class="dc'+(om?' om':'')+(isT?' today':'')+(hol?' holiday':'')+'" onclick="openNewDate(\''+ds+'\')">';
+    h+='<div class="dnum" style="'+(dt.getDay()===0&&!isT?'color:#ef4444':dt.getDay()===6&&!isT?'color:#60a5fa':'')+'">'+ dt.getDate()+'</div>';
+    if(hol)h+='<div class="holiday-label">'+hol+'</div>';
+    evts.slice(0,2).forEach(ev=>{h+='<div class="chip" style="background:'+getColor(ev.userId)+'" onclick="event.stopPropagation();openEdit(\''+ev.id+'\')" title="'+ev.title+'">'+(ev.startTime?ev.startTime+' ':'')+ev.title+'</div>';});
+    if(evts.length>2)h+='<div class="more" onclick="event.stopPropagation();openDayAll(\''+ds+'\')">+'+(evts.length-2)+'개 더보기</div>';
     h+='</div>';
   });
   h+='</div></div>';return h;
