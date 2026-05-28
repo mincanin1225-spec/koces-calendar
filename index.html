@@ -181,7 +181,7 @@ body.dark .dark-toggle{border-color:#334155}
       <button class="btn prim" id="btn-add" onclick="openNew()" disabled>+ 일정 추가</button>
     </div>
   </div>
-  <div id="cal-body" ontouchstart="tcStart(event)" ontouchend="tcEnd(event)"></div>
+  <div id="cal-body"></div>
 </div>
 <div id="modal-root"></div>
 
@@ -225,6 +225,34 @@ function save(){dataRef.set({users:S.users,events:S.events});}
 function init(){
   const td=new Date();const dns=['일','월','화','수','목','금','토'];
   document.getElementById('today-label').textContent='오늘 '+td.getFullYear()+'년 '+(td.getMonth()+1)+'월 '+td.getDate()+'일 ('+dns[td.getDay()]+')';
+}
+
+let _tx=0,_ty=0;
+function initSwipe(){
+  const el=document.getElementById('cal-body');
+  el.addEventListener('touchstart',function(e){
+    _tx=e.touches[0].clientX;
+    _ty=e.touches[0].clientY;
+  },{passive:true});
+  el.addEventListener('touchend',function(e){
+    const dx=e.changedTouches[0].clientX-_tx;
+    const dy=e.changedTouches[0].clientY-_ty;
+    if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>40){
+      dx<0?next():prev();
+    }
+  },{passive:true});
+}
+
+function toggleDark(){
+  document.body.classList.toggle('dark');
+  document.getElementById('dark-btn').textContent=document.body.classList.contains('dark')?'☀️':'🌙';
+}
+
+let _tx=0;
+function tcStart(e){_tx=e.changedTouches[0].clientX;}
+function tcEnd(e){
+  const dx=e.changedTouches[0].clientX-_tx;
+  if(Math.abs(dx)>50){dx<0?next():prev();}
 }
 
 function togglePanel(){
@@ -486,6 +514,7 @@ function openNewDT(ds,t){if(!S.users.length)return;if(!S.curUser)S.curUser=S.use
 function openEdit(id){const ev=S.events.find(x=>x.id===id);if(!ev)return;S.modal=Object.assign({},ev,{_mode:'view'});render();}
 
 document.getElementById('new-name').addEventListener('keydown',function(e){if(e.key==='Enter')addUser();});
+initSwipe();
 init();
 </script>
 </body>
